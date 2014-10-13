@@ -13,6 +13,13 @@ output() {
   echo -e "$(tput setaf ${COLOR})${MESSAGE}$(tput sgr 0)"
 }
 
+output_warning() {
+  local MESSAGE="${1}"
+  local COLOR=3
+
+  output "${MESSAGE}" "${COLOR}"
+}
+
 output_error() {
   local MESSAGE="${1}"
   local COLOR=1
@@ -79,40 +86,42 @@ if [ -z "${RESULTS}" ]; then
   exit 1
 fi
 
-#DELETED_FILES=""
-#
-#for LINE in ${RESULTS}; do
-#  cd "${WORKING_DIR}"
-#  cd "${TARGET}"
-#
-#  FILE="$(echo "${LINE}" | awk -F : '{ st = index($0, ":"); print substr($0, st + 1) }')"
-#  RELATIVE_PATH="${FILE/${REPOSITORY}}"
-#
-#  if [ "${RELATIVE_PATH:0:1}" == '/' ]; then
-#    RELATIVE_PATH="$(echo "${RELATIVE_PATH}" | cut -c 2-)"
-#  fi
-#
-#  if [ "$(echo "${LINE}" | cut -d ":" -f1)" == "D" ]; then
-#    DELETED_FILES="${DELETED_FILES}\nsvn-export: Deleted file: ${RELATIVE_PATH}"
-#
-#    continue
-#  fi
-#
-#  DIRECTORY="$(dirname "${RELATIVE_PATH}")"
-#
-#  if [ ! -d "${DIRECTORY}" ]; then
-#    mkdir -p "${DIRECTORY}"
-#  fi
-#
-#  cd "${DIRECTORY}"
-#
-#  output "svn-export: Exporting file: ${RELATIVE_PATH}"
-#
-#  svn export --depth empty --force -r "${REVISION_TO}" "${FILE}" "$(basename "${RELATIVE_PATH}")" > /dev/null 2>&1
-#done
-#
-#if [ ! -z "${DELETED_FILES}" ]; then
-#  output "${DELETED_FILES}"
-#fi
+DELETED_FILES=""
+
+for LINE in ${RESULTS}; do
+  if [ "$(echo "${LINE}" | cut -d ":" -f1)" == "D" ]; then
+    DELETED_FILES="${DELETED_FILES}\nsvn-export: Deleted file: ${RELATIVE_PATH}"
+
+    continue
+  fi
+
+  cd "${WORKING_DIR}"
+  cd "${TARGET}"
+
+  FILE="$(echo "${LINE}" | awk -F : '{ st = index($0, ":"); print substr($0, st + 1) }')"
+  RELATIVE_PATH="${FILE/${REPOSITORY}}"
+
+  if [ "${RELATIVE_PATH:0:1}" == '/' ]; then
+    RELATIVE_PATH="$(echo "${RELATIVE_PATH}" | cut -c 2-)"
+  fi
+
+  DIRECTORY="$(dirname "${RELATIVE_PATH}")"
+
+  if [ ! -d "${DIRECTORY}" ]; then
+    mkdir -p "${DIRECTORY}"
+  fi
+
+  output "git-export: Exporting file: ${RELATIVE_PATH}"
+
+  cd "${WORKING_DIR}"
+
+  git show "${REVISION_TO}:${RELATIVE_PATH}" > "${TARGET}/${RELATIVE_PATH}"
+
+  #svn export --depth empty --force -r "${REVISION_TO}" "${FILE}" "$(basename "${RELATIVE_PATH}")" > /dev/null 2>&1
+done
+
+if [ ! -z "${DELETED_FILES}" ]; then
+  output_warning "${DELETED_FILES}"
+fi
 
 cd "${WORKING_DIR}"
