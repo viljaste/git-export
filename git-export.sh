@@ -51,17 +51,23 @@ fi
 
 REPOSITORY="${WORKING_DIR}"
 
-#if [ "${#}" -gt 2 ]; then
-#  REPOSITORY="${1}"
-#fi
-#
-#REPOSITORY="$(svn info "${REPOSITORY}" 2> /dev/null | grep "^URL:" | awk '{ print $2 }')"
+if [ "${#}" -gt 2 ]; then
+  REPOSITORY="${1}"
+fi
 
-if [ -z "${REPOSITORY}" ]; then
+TMP="$(mktemp -d)"
+
+git clone "${REPOSITORY}" "${TMP}" > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then
   output_error "git-export: Invalid repository"
 
   exit 1
 fi
+
+cd "${TMP}"
+
+REPOSITORY="$(pwd)"
 
 TARGET="${@: -1}"
 
@@ -73,6 +79,10 @@ fi
 
 mkdir -p "${TARGET}"
 
+cd "${TARGET}"
+
+TARGET="$(pwd)"
+
 REVISION="${1}"
 
 if [ "${#}" -gt 2 ]; then
@@ -81,6 +91,8 @@ fi
 
 REVISION_FROM="$(echo "${REVISION}" | cut -d ":" -f1)"
 REVISION_TO="$(echo "${REVISION}" | cut -d ":" -f2)"
+
+cd "${REPOSITORY}"
 
 RESULTS="$(git diff-tree -r --name-status "${REVISION_FROM}^" "${REVISION_TO}" 2> /dev/null | awk '{ print $1 ":" $2 }')"
 
@@ -93,21 +105,20 @@ fi
 DELETED_FILES=""
 
 for LINE in ${RESULTS}; do
+  FILE="$(echo "${LINE}" | awk -F : '{ st = index($0, ":"); print substr($0, st + 1) }')"
+  RELATIVE_PATH="${FILE/${REPOSITORY}}"
+
   if [ "$(echo "${LINE}" | cut -d ":" -f1)" == "D" ]; then
     DELETED_FILES="${DELETED_FILES}\nsvn-export: Deleted file: ${RELATIVE_PATH}"
 
     continue
   fi
 
-  cd "${WORKING_DIR}"
-  cd "${TARGET}"
-
-  FILE="$(echo "${LINE}" | awk -F : '{ st = index($0, ":"); print substr($0, st + 1) }')"
-  RELATIVE_PATH="${FILE/${REPOSITORY}}"
-
   if [ "${RELATIVE_PATH:0:1}" == '/' ]; then
     RELATIVE_PATH="$(echo "${RELATIVE_PATH}" | cut -c 2-)"
   fi
+
+  cd "${TARGET}"
 
   DIRECTORY="$(dirname "${RELATIVE_PATH}")"
 
@@ -117,11 +128,9 @@ for LINE in ${RESULTS}; do
 
   output "git-export: Exporting file: ${RELATIVE_PATH}"
 
-  cd "${WORKING_DIR}"
+  cd "${REPOSITORY}"
 
   git show "${REVISION_TO}:${RELATIVE_PATH}" > "${TARGET}/${RELATIVE_PATH}"
-
-  #svn export --depth empty --force -r "${REVISION_TO}" "${FILE}" "$(basename "${RELATIVE_PATH}")" > /dev/null 2>&1
 done
 
 if [ ! -z "${DELETED_FILES}" ]; then
