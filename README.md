@@ -28,3 +28,7 @@ Install
 ### Repository from URL
 
     git-export http://git.simpledrupalcloud.com/simpledrupalcloud/dev.git dd7a2464813725f24cbd1b09cde629a9213d34f8:master ~/exported_files
+
+## License
+
+**MIT**
