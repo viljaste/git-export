@@ -135,4 +135,6 @@ if [ ! -z "${DELETED_FILES}" ]; then
   output_warning "${DELETED_FILES}"
 fi
 
+rm -rf "${REPOSITORY}"
+
 cd "${WORKING_DIR}"
