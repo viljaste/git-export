@@ -82,7 +82,7 @@ for LINE in ${RESULTS}; do
   RELATIVE_PATH="${FILE/${REPOSITORY}}"
 
   if [ "$(echo "${LINE}" | cut -d ":" -f1)" == "D" ]; then
-    DELETED_FILES="${DELETED_FILES}\nsvn-export: Deleted file: ${RELATIVE_PATH}"
+    DELETED_FILES="${DELETED_FILES}\ngit-export: Deleted file: ${RELATIVE_PATH}"
 
     continue
   fi
@@ -107,7 +107,7 @@ for LINE in ${RESULTS}; do
 done
 
 if [ ! -z "${DELETED_FILES}" ]; then
-  echo "${DELETED_FILES}"
+  echo -n "${DELETED_FILES}"
 fi
 
 rm -rf "${REPOSITORY}"
