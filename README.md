@@ -16,7 +16,7 @@ Install
       && sudo cp "${TMP}/git-export.sh" /usr/local/bin/git-export \
       && sudo chmod +x /usr/local/bin/git-export
 
-## Examples
+## How to use
 
 ### Repository from working directory
 
