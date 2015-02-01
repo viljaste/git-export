@@ -2,31 +2,6 @@
 
 WORKING_DIR="$(pwd)"
 
-output() {
-  local MESSAGE="${1}"
-  local COLOR="${2}"
-
-  if [ -z "${COLOR}" ]; then
-    COLOR=2
-  fi
-
-  echo -e "$(tput setaf ${COLOR})${MESSAGE}$(tput sgr 0)"
-}
-
-output_warning() {
-  local MESSAGE="${1}"
-  local COLOR=3
-
-  output "${MESSAGE}" "${COLOR}"
-}
-
-output_error() {
-  local MESSAGE="${1}"
-  local COLOR=1
-
-  >&2 output "${MESSAGE}" "${COLOR}"
-}
-
 help() {
   cat << EOF
 git-export: Usage: git-export [REPOSITORY] <REVISION_FROM:REVISION_TO> <TARGET>
@@ -40,7 +15,7 @@ if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 fi
 
 unknown_command() {
-  output_error "git-export: Unknown command. See 'git-export --help'"
+  echo "git-export: Unknown command. See 'git-export --help'"
 
   exit 1
 }
@@ -60,7 +35,7 @@ TMP="$(mktemp -d)"
 git clone "${REPOSITORY}" "${TMP}" > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then
-  output_error "git-export: Invalid repository"
+  echo "git-export: Invalid repository"
 
   exit 1
 fi
@@ -70,7 +45,7 @@ REPOSITORY="${TMP}"
 TARGET="${@: -1}"
 
 if [ -d "${TARGET}" ]; then
-  output_error "git-export: Target directory already exists: ${TARGET}"
+  echo "git-export: Target directory already exists: ${TARGET}"
 
   exit 1
 fi
@@ -95,7 +70,7 @@ cd "${REPOSITORY}"
 RESULTS="$(git diff-tree -r --name-status "${REVISION_FROM}^" "${REVISION_TO}" 2> /dev/null | awk '{ print $1 ":" $2 }')"
 
 if [ -z "${RESULTS}" ]; then
-  output "git-export: No results"
+  echo "git-export: No results"
 
   exit 1
 fi
@@ -124,7 +99,7 @@ for LINE in ${RESULTS}; do
     mkdir -p "${DIRECTORY}"
   fi
 
-  output "git-export: Exporting file: ${RELATIVE_PATH}"
+  echo "git-export: Exporting file: ${RELATIVE_PATH}"
 
   cd "${REPOSITORY}"
 
@@ -132,7 +107,7 @@ for LINE in ${RESULTS}; do
 done
 
 if [ ! -z "${DELETED_FILES}" ]; then
-  output_warning "${DELETED_FILES}"
+  echo "${DELETED_FILES}"
 fi
 
 rm -rf "${REPOSITORY}"
