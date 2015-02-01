@@ -62,8 +62,8 @@ if [ "${#}" -gt 2 ]; then
   REVISION="${2}"
 fi
 
-REVISION_FROM="$(echo "${REVISION}" | cut -d ":" -f1)"
-REVISION_TO="$(echo "${REVISION}" | cut -d ":" -f2)"
+REVISION_FROM="$(echo ${REVISION} | cut -d ':' -f1)"
+REVISION_TO="$(echo ${REVISION} | cut -d ':' -f2)"
 
 cd "${REPOSITORY}"
 
@@ -78,22 +78,22 @@ fi
 DELETED_FILES=""
 
 for LINE in ${RESULTS}; do
-  FILE="$(echo "${LINE}" | awk -F : '{ st = index($0, ":"); print substr($0, st + 1) }')"
+  FILE="$(echo ${LINE} | awk -F : '{ st = index($0, ":"); print substr($0, st + 1) }')"
   RELATIVE_PATH="${FILE/${REPOSITORY}}"
 
-  if [ "$(echo "${LINE}" | cut -d ":" -f1)" == "D" ]; then
+  if [ "$(echo ${LINE} | cut -d ':' -f1)" == "D" ]; then
     DELETED_FILES="${DELETED_FILES}\ngit-export: Deleted file: ${RELATIVE_PATH}"
 
     continue
   fi
 
   if [ "${RELATIVE_PATH:0:1}" == "/" ]; then
-    RELATIVE_PATH="$(echo "${RELATIVE_PATH}" | cut -c 2-)"
+    RELATIVE_PATH="$(echo ${RELATIVE_PATH} | cut -c 2-)"
   fi
 
   cd "${TARGET}"
 
-  DIRECTORY="$(dirname "${RELATIVE_PATH}")"
+  DIRECTORY="$(dirname ${RELATIVE_PATH})"
 
   if [ ! -d "${DIRECTORY}" ]; then
     mkdir -p "${DIRECTORY}"
