@@ -4,7 +4,7 @@ Exports only modified or newly added files between two revisions from the GIT re
 
 ## Usage
 
-    git-export [REPOSITORY] <REVISION_FROM:REVISION_TO> <TARGET>
+    git-export [SOURCE] <REVISION_FROM:REVISION_TO> <DESTINATION>
 
 ## Install
 

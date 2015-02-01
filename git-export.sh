@@ -4,7 +4,7 @@ WORKING_DIR="$(pwd)"
 
 help() {
   cat << EOF
-git-export: Usage: git-export [REPOSITORY] <REVISION_FROM:REVISION_TO> <TARGET>
+git-export: Usage: git-export [SOURCE] <REVISION_FROM:REVISION_TO> <DESTINATION>
 EOF
 
   exit 1
@@ -24,15 +24,15 @@ if [ "${#}" -lt 2 ] || [ "${#}" -gt 3 ]; then
   unknown_command
 fi
 
-REPOSITORY="${WORKING_DIR}"
+SOURCE="${WORKING_DIR}"
 
 if [ "${#}" -gt 2 ]; then
-  REPOSITORY="${1}"
+  SOURCE="${1}"
 fi
 
 TMP="$(mktemp -d)"
 
-git clone "${REPOSITORY}" "${TMP}" > /dev/null 2>&1
+git clone "${SOURCE}" "${TMP}" > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then
   echo "git-export: Invalid repository"
@@ -40,21 +40,21 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-REPOSITORY="${TMP}"
+SOURCE="${TMP}"
 
-TARGET="${@: -1}"
+DESTINATION="${@: -1}"
 
-if [ -d "${TARGET}" ]; then
-  echo "git-export: Target directory already exists: ${TARGET}"
+if [ -d "${DESTINATION}" ]; then
+  echo "git-export: Target directory already exists: ${DESTINATION}"
 
   exit 1
 fi
 
-mkdir -p "${TARGET}"
+mkdir -p "${DESTINATION}"
 
-cd "${TARGET}"
+cd "${DESTINATION}"
 
-TARGET="$(pwd)"
+DESTINATION="$(pwd)"
 
 REVISION="${1}"
 
@@ -65,7 +65,7 @@ fi
 REVISION_FROM="$(echo ${REVISION} | cut -d ':' -f1)"
 REVISION_TO="$(echo ${REVISION} | cut -d ':' -f2)"
 
-cd "${REPOSITORY}"
+cd "${SOURCE}"
 
 RESULTS="$(git diff-tree -r --name-status "${REVISION_FROM}^" "${REVISION_TO}" 2> /dev/null | awk '{ print $1 ":" $2 }')"
 
@@ -79,7 +79,7 @@ DELETED_FILES=""
 
 for LINE in ${RESULTS}; do
   FILE="$(echo ${LINE} | awk -F : '{ st = index($0, ":"); print substr($0, st + 1) }')"
-  RELATIVE_PATH="${FILE/${REPOSITORY}}"
+  RELATIVE_PATH="${FILE/${SOURCE}}"
 
   if [ "$(echo ${LINE} | cut -d ':' -f1)" == "D" ]; then
     DELETED_FILES="${DELETED_FILES}\ngit-export: Deleted file: ${RELATIVE_PATH}"
@@ -91,7 +91,7 @@ for LINE in ${RESULTS}; do
     RELATIVE_PATH="$(echo ${RELATIVE_PATH} | cut -c 2-)"
   fi
 
-  cd "${TARGET}"
+  cd "${DESTINATION}"
 
   DIRECTORY="$(dirname ${RELATIVE_PATH})"
 
@@ -101,15 +101,15 @@ for LINE in ${RESULTS}; do
 
   echo "git-export: Exporting file: ${RELATIVE_PATH}"
 
-  cd "${REPOSITORY}"
+  cd "${SOURCE}"
 
-  git show "${REVISION_TO}:${RELATIVE_PATH}" > "${TARGET}/${RELATIVE_PATH}"
+  git show "${REVISION_TO}:${RELATIVE_PATH}" > "${DESTINATION}/${RELATIVE_PATH}"
 done
 
 if [ ! -z "${DELETED_FILES}" ]; then
   echo -e "${DELETED_FILES}"
 fi
 
-rm -rf "${REPOSITORY}"
+rm -rf "${SOURCE}"
 
 cd "${WORKING_DIR}"
