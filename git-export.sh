@@ -45,7 +45,7 @@ SOURCE="${TMP}"
 DESTINATION="${@: -1}"
 
 if [ -d "${DESTINATION}" ]; then
-  echo "git-export: Target directory already exists: ${DESTINATION}"
+  echo "git-export: Destination directory already exists: ${DESTINATION}"
 
   exit 1
 fi
