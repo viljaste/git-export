@@ -87,7 +87,7 @@ for LINE in ${RESULTS}; do
     continue
   fi
 
-  if [ "${RELATIVE_PATH:0:1}" == '/' ]; then
+  if [ "${RELATIVE_PATH:0:1}" == "/" ]; then
     RELATIVE_PATH="$(echo "${RELATIVE_PATH}" | cut -c 2-)"
   fi
 
