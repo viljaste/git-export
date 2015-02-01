@@ -1,15 +1,12 @@
-git-export
-==========
+# git-export
 
 Exports only modified or newly added files between two revisions from the GIT repository.
 
-Usage
------
+## Usage
 
     git-export [REPOSITORY] <REVISION_FROM:REVISION_TO> <TARGET>
 
-Install
--------
+## Install
 
     TMP="$(mktemp -d)" \
       && git clone http://git.simpledrupalcloud.com/simpledrupalcloud/git-export.git "${TMP}" \
