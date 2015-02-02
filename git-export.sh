@@ -2,6 +2,14 @@
 
 WORKING_DIR="$(pwd)"
 
+hash git 2> /dev/null
+
+if [ "${?}" -ne 0 ]; then
+  echo "git-export: git command not found."
+
+  exit 1
+fi
+
 help() {
   cat << EOF
 git-export: Usage: git-export [SOURCE] <REVISION_FROM:REVISION_TO> <DESTINATION>
