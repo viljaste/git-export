@@ -42,7 +42,7 @@ TMP="$(mktemp -d)"
 
 git clone "${SOURCE}" "${TMP}" > /dev/null 2>&1
 
-if [ $? -ne 0 ]; then
+if [ "${?}" -ne 0 ]; then
   echo "git-export: Invalid repository"
 
   exit 1
@@ -75,7 +75,7 @@ REVISION_TO="$(echo ${REVISION} | cut -d ':' -f2)"
 
 cd "${SOURCE}"
 
-RESULTS="$(git diff-tree -r --name-status "${REVISION_FROM}^" "${REVISION_TO}" 2> /dev/null | awk '{ print $1 ":" $2 }')"
+RESULTS="$(git diff-tree -r --name-status ${REVISION_FROM}^ ${REVISION_TO} 2> /dev/null | awk '{ print $1 ":" $2 }')"
 
 if [ -z "${RESULTS}" ]; then
   echo "git-export: No results"
