@@ -75,7 +75,7 @@ REVISION_TO="$(echo ${REVISION} | cut -d ':' -f2)"
 
 cd "${SOURCE}"
 
-RESULTS="$(git diff-tree -r --name-status ${REVISION_FROM}^ ${REVISION_TO} 2> /dev/null | awk '{ print $1 ":" $2 }')"
+RESULTS="$(git diff-tree -r --name-status "${REVISION_FROM}^" ${REVISION_TO} 2> /dev/null | awk '{ print $1 ":" $2 }')"
 
 if [ -z "${RESULTS}" ]; then
   echo "git-export: No results"
