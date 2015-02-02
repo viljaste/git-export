@@ -109,6 +109,8 @@ for LINE in ${RESULTS}; do
 
   echo "git-export: Exporting file: ${RELATIVE_PATH}"
 
+  cd "${SOURCE}"
+
   git show "${REVISION_TO}:${RELATIVE_PATH}" > "${DESTINATION}/${RELATIVE_PATH}"
 done
 
