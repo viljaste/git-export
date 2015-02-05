@@ -75,6 +75,7 @@ fi
 REVISION_FROM="$(echo ${REVISION} | cut -d ':' -f1)"
 REVISION_TO="$(echo ${REVISION} | cut -d ':' -f2)"
 
+# Since git diff-tree doesn't work properly for the initial commit, we use some clever technique to make it work.
 if [[ "$(git rev-list HEAD | tail -n 1)" == ${REVISION_FROM}* ]]; then
   REVISION_TO="${REVISION_FROM}"
   REVISION_FROM="$(git hash-object -t tree /dev/null)"
