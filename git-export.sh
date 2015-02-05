@@ -32,6 +32,20 @@ if [ "${#}" -lt 2 ] || [ "${#}" -gt 3 ]; then
   unknown_command
 fi
 
+DESTINATION="${@: -1}"
+
+if [ -d "${DESTINATION}" ]; then
+  echo "git-export: Destination directory already exists: ${DESTINATION}"
+
+  exit 1
+fi
+
+mkdir -p "${DESTINATION}"
+
+cd "${DESTINATION}"
+
+DESTINATION="$(pwd)"
+
 SOURCE="${WORKING_DIR}"
 
 if [ "${#}" -gt 2 ]; then
@@ -50,19 +64,7 @@ fi
 
 SOURCE="${TMP}"
 
-DESTINATION="${@: -1}"
-
-if [ -d "${DESTINATION}" ]; then
-  echo "git-export: Destination directory already exists: ${DESTINATION}"
-
-  exit 1
-fi
-
-mkdir -p "${DESTINATION}"
-
-cd "${DESTINATION}"
-
-DESTINATION="$(pwd)"
+cd "${SOURCE}"
 
 REVISION="${1}"
 
@@ -73,9 +75,14 @@ fi
 REVISION_FROM="$(echo ${REVISION} | cut -d ':' -f1)"
 REVISION_TO="$(echo ${REVISION} | cut -d ':' -f2)"
 
-cd "${SOURCE}"
+if [[ "$(git rev-list HEAD | tail -n 1)" == ${REVISION_FROM}* ]]; then
+  REVISION_TO="${REVISION_FROM}"
+  REVISION_FROM="$(git hash-object -t tree /dev/null)"
 
-RESULTS="$(git diff-tree -r --name-status ${REVISION_FROM}^ ${REVISION_TO} 2> /dev/null | awk '{ print $1 ":" $2 }')"
+  RESULTS="$(git diff-tree -r --name-status ${REVISION_FROM} ${REVISION_TO} 2> /dev/null | awk '{ print $1 ":" $2 }')"
+else
+  RESULTS="$(git diff-tree -r --name-status ${REVISION_FROM}^ ${REVISION_TO} 2> /dev/null | awk '{ print $1 ":" $2 }')"
+fi
 
 if [ -z "${RESULTS}" ]; then
   echo "git-export: No results"
