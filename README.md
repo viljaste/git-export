@@ -30,4 +30,3 @@ Exports only modified or newly added files between two revisions from the GIT re
 ## License
 
 **MIT**
-
