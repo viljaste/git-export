@@ -91,6 +91,8 @@ if [ -z "${RESULTS}" ]; then
   exit 1
 fi
 
+echo "$(git rev-parse ${REVISION_TO})" > "${DESTINATION}/REVISION.txt"
+
 DELETED_FILES=""
 
 for LINE in ${RESULTS}; do
