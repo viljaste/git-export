@@ -57,7 +57,7 @@ TMP="$(mktemp -d)"
 git clone "${SOURCE}" "${TMP}" > /dev/null 2>&1
 
 if [ "${?}" -ne 0 ]; then
-  echo "git-export: Invalid repository"
+  echo "git-export: Invalid repository."
 
   exit 1
 fi
@@ -86,7 +86,7 @@ else
 fi
 
 if [ -z "${RESULTS}" ]; then
-  echo "git-export: No results"
+  echo "git-export: No results."
 
   exit 1
 fi
