@@ -4,7 +4,7 @@ Exports only modified or newly added files between two revisions from the GIT re
 
 ## Usage
 
-    git-export [SOURCE] <REVISION_FROM:REVISION_TO> <DESTINATION>
+    git-export [SOURCE] <BRANCH> <REVISION_FROM:REVISION_TO> <DESTINATION>
 
 ## Install
 
@@ -17,15 +17,15 @@ Exports only modified or newly added files between two revisions from the GIT re
 
 ### Repository from working directory
 
-    git-export dd7a2464:HEAD ~/exported_files
+    git-export origin/master dd7a2464:HEAD ~/exported_files
 
 ### Repository from directory
 
-    git-export ~/files_under_version_control dd7a246:403a6cb ~/exported_files
+    git-export origin/master ~/files_under_version_control dd7a246:403a6cb ~/exported_files
 
 ### Repository from URL
 
-    git-export http://git.simpledrupalcloud.com/simpledrupalcloud/dev.git dd7a246:master ~/exported_files
+    git-export origin/master http://git.simpledrupalcloud.com/simpledrupalcloud/dev.git dd7a246:master ~/exported_files
 
 ## License
 

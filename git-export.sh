@@ -12,7 +12,7 @@ fi
 
 help() {
   cat << EOF
-git-export: Usage: git-export [SOURCE] <REVISION_FROM:REVISION_TO> <DESTINATION>
+git-export: Usage: git-export [SOURCE] <BRANCH> <REVISION_FROM:REVISION_TO> <DESTINATION>
 EOF
 
   exit 1
@@ -28,7 +28,7 @@ unknown_command() {
   exit 1
 }
 
-if [ "${#}" -lt 2 ] || [ "${#}" -gt 3 ]; then
+if [ "${#}" -lt 3 ] || [ "${#}" -gt 4 ]; then
   unknown_command
 fi
 
@@ -48,7 +48,7 @@ DESTINATION="$(pwd)"
 
 SOURCE="${WORKING_DIR}"
 
-if [ "${#}" -gt 2 ]; then
+if [ "${#}" -gt 3 ]; then
   SOURCE="${1}"
 fi
 
@@ -66,10 +66,18 @@ SOURCE="${TMP}"
 
 cd "${SOURCE}"
 
-REVISION="${1}"
+BRANCH="${1}"
 
-if [ "${#}" -gt 2 ]; then
-  REVISION="${2}"
+if [ "${#}" -gt 3 ]; then
+  BRANCH="${2}"
+fi
+
+git checkout -f "${BRANCH}"
+
+REVISION="${2}"
+
+if [ "${#}" -gt 3 ]; then
+  REVISION="${3}"
 fi
 
 REVISION_FROM="$(echo ${REVISION} | cut -d ':' -f1)"
